@@ -1,12 +1,10 @@
-import random
-import os
+import secrets
 from ai_player import AIPlayer
 
 SUITS = ['diamond', 'club', 'heart', 'spade']
 RANKS = ['3','4','5','6','7','8','9','10','J','Q','K','A','2']
 RANK_ORDER = {r: i for i, r in enumerate(RANKS)}
 
-_rng = random.SystemRandom()
 
 def rank_value(r):
     return RANK_ORDER[r]
@@ -124,12 +122,25 @@ class Game:
 
     def deal(self):
         deck = [(s, r) for s in SUITS for r in RANKS]
-        # 使用系统随机源，多次洗牌确保充分随机
-        for _ in range(3):
-            _rng.shuffle(deck)
-        # 随机切牌
-        cut = _rng.randint(0, 51)
+
+        # 使用系统随机源进行多轮 Fisher-Yates 洗牌
+        for _ in range(4):
+            for i in range(len(deck) - 1, 0, -1):
+                j = secrets.randbelow(i + 1)
+                deck[i], deck[j] = deck[j], deck[i]
+
+        # 随机切牌 + 随机翻转，进一步打散位置相关性
+        cut = secrets.randbelow(len(deck))
         deck = deck[cut:] + deck[:cut]
+        if secrets.randbelow(2) == 1:
+            deck.reverse()
+
+        # 再执行少量随机互换，降低残余结构
+        for _ in range(12):
+            a = secrets.randbelow(len(deck))
+            b = secrets.randbelow(len(deck))
+            deck[a], deck[b] = deck[b], deck[a]
+
         for i in range(4):
             self.players[i] = sorted(deck[i*13:(i+1)*13], key=card_sort_key)
         for i in range(4):
@@ -233,7 +244,8 @@ class Game:
             is_free=is_free,
             first_turn=self.first_turn,
             other_counts=[len(self.players[i]) for i in range(4)],
-            player_idx=pid
+            player_idx=pid,
+            history=self.history
         )
         if cards:
             self.play_cards(pid, [tuple(c) for c in cards])

@@ -15,6 +15,13 @@ const TN={
     airplane:'飞机',airplane_pure:'飞机'
 };
 
+const CARD_IMAGE_ENABLED=true;
+const CARD_IMAGE_EXT='png';
+const SUIT_ASSET={diamond:'Diamond',club:'Club',heart:'Heart',spade:'Spade'};
+function cardImagePath(suit,rank){
+    return `/static/cards/${SUIT_ASSET[suit]}${rank}.${CARD_IMAGE_EXT}`;
+}
+
 const AI_STEP_DELAY=1000;
 const AI_FINAL_DELAY=500;
 
@@ -114,11 +121,25 @@ function mkCard(suit,rank){
     const el=document.createElement('div');
     el.className='cd';
     const c=SC[suit];
-    el.innerHTML=
+
+    const frontHtml=
         `<div class="inner-oval"></div>`+
         `<div class="rt" style="color:${c}">${rank}</div>`+
         `<div class="sm">${SS[suit]}</div>`+
         `<div class="rb" style="color:${c}">${rank}</div>`;
+
+    el.innerHTML=frontHtml;
+
+    if(CARD_IMAGE_ENABLED){
+        const img=document.createElement('img');
+        img.className='cd-img';
+        img.alt=`${suit}-${rank}`;
+        img.src=cardImagePath(suit,rank);
+        img.addEventListener('load',()=>{
+            el.classList.add('use-img');
+            el.prepend(img);
+        });
+    }
     return el;
 }
 
