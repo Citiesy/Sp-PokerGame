@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>扑克牌对战</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="app">
+    <div id="title-screen">
+        <div class="title-wrap">
+            <div class="title-cards">
+                <div class="title-cd">
+                    K
+                    <svg class="title-cd-sm" viewBox="0 0 40 40"><polygon points="20,5 35,20 20,35 5,20" fill="#fff"/></svg>
+                </div>
+                <div class="title-cd">
+                    A
+                    <svg class="title-cd-sm" viewBox="0 0 40 40"><path d="M20 34C11 27 3 19 3 13A8.5 8.5 0 0 1 20 10 8.5 8.5 0 0 1 37 13C37 19 29 27 20 34Z" fill="#fff"/></svg>
+                </div>
+                <div class="title-cd">
+                    Q
+                    <svg class="title-cd-sm" viewBox="0 0 40 40"><path d="M20 4C11 13 3 17 3 23A8.5 8.5 0 0 0 17 26L15 36H25L23 26A8.5 8.5 0 0 0 37 23C37 17 29 13 20 4Z" fill="#fff"/></svg>
+                </div>
+            </div>
+            <h1>扑克大战</h1>
+            <p class="sub">四人竞技 · 智慧较量</p>
+            <div class="title-features">
+                <span class="title-feat">四人对局</span>
+                <span class="title-feat">智能 AI</span>
+                <span class="title-feat">策略博弈</span>
+            </div>
+            <button class="btn-main" onclick="startGame()">开始游戏</button>
+            <p class="title-hint">持有方块3的玩家先出牌</p>
+        </div>
+    </div>
+
+    <div id="board" class="hidden">
+        <header id="hud">
+            <span id="turn-info"></span>
+            <div class="hud-r">
+                <button class="btn-ico" onclick="toggleTheme()" title="切换主题">
+                    <svg id="ico-sun" viewBox="0 0 24 24" width="16" height="16"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></g></svg>
+                    <svg id="ico-moon" class="hidden" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="btn-hud" onclick="startGame()">New</button>
+            </div>
+        </header>
+
+        <div id="table">
+            <section class="seat seat-top" id="seat-2">
+                <div class="tag"><span class="dot c-red"></span><span>电脑C</span><span class="cnt" id="cnt-2">13</span></div>
+                <div class="zone" id="zone-2"></div>
+            </section>
+
+            <section class="seat seat-left" id="seat-1">
+                <div class="tag"><span class="dot c-amber"></span><span>电脑B</span><span class="cnt" id="cnt-1">13</span></div>
+                <div class="zone" id="zone-1"></div>
+            </section>
+
+            <section class="seat seat-right" id="seat-3">
+                <div class="tag"><span class="dot c-violet"></span><span>电脑D</span><span class="cnt" id="cnt-3">13</span></div>
+                <div class="zone" id="zone-3"></div>
+            </section>
+
+            <div id="center"><div id="msg"></div></div>
+
+            <section class="seat seat-btm" id="seat-0">
+                <div class="zone" id="zone-0"></div>
+                <div class="tag"><span class="dot c-blue"></span><span>你</span><span class="cnt" id="cnt-0">13</span></div>
+                <div id="hand"></div>
+                <div id="acts">
+                    <button id="btn-play" class="btn-act b-play" onclick="playCards()" disabled>出牌</button>
+                    <button id="btn-pass" class="btn-act b-pass" onclick="passTurn()" disabled>不出</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="overlay" class="hidden">
+        <div id="modal">
+            <div id="m-ico"></div>
+            <h2 id="m-txt"></h2>
+            <button class="btn-main" onclick="startGame()">再来一局</button>
+        </div>
+    </div>
+</div>
+<script src="/static/js/game.js"></script>
+</body>
+</html>
