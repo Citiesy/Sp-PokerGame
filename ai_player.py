@@ -50,6 +50,11 @@ class AIPlayer:
         decomp = self._decompose(hand, groups, log)
         urgent = min_enemy <= 2
 
+        kill_shot = self._find_kill_shot(hand)
+        if kill_shot:
+            log.append("发现一手出完机会")
+            return kill_shot
+
         # 手牌<=2张直接全出(如果合法)
         if len(hand) <= 2:
             from game_logic import classify_hand
@@ -65,6 +70,13 @@ class AIPlayer:
             if bombs:
                 log.append("用炸弹压制")
                 return list(bombs[-1])
+
+        # 手牌结构过碎时，优先减少孤张，避免后续被卡单
+        if decomp['singles'] >= 4 and decomp['pairs'] <= 1:
+            singles = self._get_smart_singles(hand, groups)
+            if singles:
+                log.append(f"手牌偏碎，先走单张{singles[0][1]}")
+                return [singles[0]]
 
         # 策略优先级: 飞机 > 顺子 > 连对 > 三带二 > 对子 > 单张
         # 优先出张数多的组合来快速减手牌
@@ -189,6 +201,11 @@ class AIPlayer:
         singles = self._get_smart_singles(hand, groups)
         cands = [c for c in singles if rv(c[1]) > lv]
 
+        win_play = self._find_finishing_play(hand, [[c] for c in cands])
+        if win_play:
+            log.append(f"压单并做收尾: {win_play[0][1]}")
+            return list(win_play)
+
         if cands:
             if urgent or aggressive:
                 log.append("紧急/快赢, 出最小能压的单张")
@@ -237,6 +254,11 @@ class AIPlayer:
         pairs = self._find_pairs_no_break(groups)
         cands = sorted([p for p in pairs if rv(p[0][1]) > lv], key=lambda p: rv(p[0][1]))
 
+        win_play = self._find_finishing_play(hand, cands)
+        if win_play:
+            log.append(f"压对并做收尾: {win_play[0][1]}")
+            return list(win_play)
+
         if cands:
             if urgent or aggressive:
                 log.append(f"出对{cands[0][0][1]}")
@@ -273,6 +295,12 @@ class AIPlayer:
             [r for r, cs in groups.items() if len(cs) >= 3 and rv(r) > lv],
             key=rv
         )
+        triple_plays = [tuple(groups[r][:3]) for r in triples]
+        win_play = self._find_finishing_play(hand, triple_plays)
+        if win_play:
+            log.append(f"压三条并做收尾: {win_play[0][1]}")
+            return list(win_play)
+
         if triples:
             r = triples[0]
             log.append(f"出三条{r}")
@@ -499,3 +527,30 @@ class AIPlayer:
                     if len(remaining) >= l * 2:
                         results.append(tuple(tcards + remaining[:l*2]))
         return results
+
+    def _find_kill_shot(self, hand):
+        """如果整手牌本身是合法牌型，直接一手走完。"""
+        from game_logic import classify_hand
+        htype, _ = classify_hand(hand)
+        if htype:
+            return list(hand)
+        return None
+
+    def _find_finishing_play(self, hand, candidates):
+        """优先选择出牌后能在下一次自由回合一手走完的候选。"""
+        from game_logic import classify_hand
+        for cand in candidates:
+            remaining = list(hand)
+            ok = True
+            for card in cand:
+                if card in remaining:
+                    remaining.remove(card)
+                else:
+                    ok = False
+                    break
+            if not ok or not remaining:
+                continue
+            htype, _ = classify_hand(remaining)
+            if htype:
+                return cand
+        return None
