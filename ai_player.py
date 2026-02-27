@@ -67,6 +67,7 @@ class AIPlayer:
             log.append("发现一手出完机会")
             return kill_shot
 
+
         # 手牌<=2张直接全出(如果合法)
         if len(hand) <= 2:
             from game_logic import classify_hand
@@ -572,6 +573,7 @@ class AIPlayer:
                 return cand
         return None
 
+
     def _analyze_history(self, history, player_idx):
         """从历史出牌中提取可用于决策的轻量信息。"""
         recent = history[-12:]
@@ -600,4 +602,3 @@ class AIPlayer:
             'high_cards_seen': high_cards_seen,
             'high_cards_remaining': max(0, 8 - high_cards_seen),
             'bombs_seen': bombs_seen
-        }
