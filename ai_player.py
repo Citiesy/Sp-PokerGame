@@ -62,6 +62,12 @@ class AIPlayer:
             log.append("发现一手出完机会")
             return kill_shot
 
+        kill_shot = self._find_kill_shot(hand)
+        if kill_shot:
+            log.append("发现一手出完机会")
+            return kill_shot
+
+
         # 手牌<=2张直接全出(如果合法)
         if len(hand) <= 2:
             from game_logic import classify_hand
@@ -596,4 +602,3 @@ class AIPlayer:
             'high_cards_seen': high_cards_seen,
             'high_cards_remaining': max(0, 8 - high_cards_seen),
             'bombs_seen': bombs_seen
-        }

@@ -394,24 +394,51 @@ body{
         linear-gradient(150deg, var(--bg), var(--bg2) 40%, var(--bg3));
 }
 
+
 #table{backdrop-filter:none}
 
 #hud{border:1px solid rgba(255,255,255,.08);box-shadow:none}
+=======
+#table{
+    backdrop-filter: blur(3px);
+}
+
+#hud{
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:0 8px 24px rgba(0,0,0,.24);
+}
+
 
 .tag{
     background:linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.05));
     border:1px solid rgba(255,255,255,.16);
 }
 
+
 .btn-main{background:linear-gradient(145deg, #3fd486, #1fb466);box-shadow:0 6px 14px rgba(22,80,46,.25)}
 .btn-main:hover{transform:translateY(-1px) scale(1.01)}
 
 .btn-act{box-shadow:0 4px 10px rgba(0,0,0,.18)}
+=======
+.btn-main{
+    background:linear-gradient(145deg, #46e68e, #1cbf61);
+    box-shadow:0 10px 24px rgba(22,80,46,.35), inset 0 1px 0 rgba(255,255,255,.35);
+}
+.btn-main:hover{transform:translateY(-1px) scale(1.01)}
+
+.btn-act{
+    box-shadow:0 6px 14px rgba(0,0,0,.22);
+}
+
 
 .cd{
     transition:transform .12s ease, box-shadow .12s ease;
 }
+
 .cd:hover{transform:translateY(-2px);box-shadow:0 6px 12px rgba(0,0,0,.14)}
+=======
+.cd:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.20)}
+
 
 .quick-rules{
     width:min(480px, 92vw);
@@ -462,4 +489,3 @@ body{
 .cd.use-img .sm,
 .cd.use-img .rb{
     opacity:0;
-}
