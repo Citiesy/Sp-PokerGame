@@ -21,7 +21,7 @@ def ck(c):
 
 class AIPlayer:
 
-    def decide(self, hand, last_type, last_value, last_count, is_free, first_turn, other_counts, player_idx):
+    def decide(self, hand, last_type, last_value, last_count, is_free, first_turn, other_counts, player_idx, history=None):
         log = []
         hand = sorted(hand, key=ck)
         groups = self._group(hand)
@@ -29,6 +29,12 @@ class AIPlayer:
 
         min_enemy = min(other_counts[i] for i in range(4) if i != player_idx)
         log.append(f"对手最少牌数: {min_enemy}")
+
+        self.history_profile = self._analyze_history(history or [], player_idx)
+        hp = self.history_profile
+        log.append(
+            f"历史观测: 最近过牌{hp['recent_enemy_passes']}次 高牌已见{hp['high_cards_seen']}/8 炸弹已见{hp['bombs_seen']}"
+        )
 
         if is_free:
             result = self._free_play(hand, groups, first_turn, min_enemy, log)
@@ -48,7 +54,13 @@ class AIPlayer:
             return self._first_turn_play(hand, groups, log)
 
         decomp = self._decompose(hand, groups, log)
-        urgent = min_enemy <= 2
+        hp = getattr(self, 'history_profile', {})
+        urgent = min_enemy <= 2 or (min_enemy <= 3 and hp.get('recent_enemy_passes', 0) == 0)
+
+        kill_shot = self._find_kill_shot(hand)
+        if kill_shot:
+            log.append("发现一手出完机会")
+            return kill_shot
 
         kill_shot = self._find_kill_shot(hand)
         if kill_shot:
@@ -165,11 +177,13 @@ class AIPlayer:
     # ========== 跟牌 ==========
 
     def _response_play(self, hand, groups, lt, lv, lc, min_enemy, log):
-        urgent = min_enemy <= 2
+        hp = getattr(self, 'history_profile', {})
+        urgent = min_enemy <= 2 or (min_enemy <= 3 and hp.get('recent_enemy_passes', 0) == 0)
         my_count = len(hand)
 
         # 如果我也快赢了，激进出
-        aggressive = my_count <= 4
+        hp = getattr(self, 'history_profile', {})
+        aggressive = my_count <= 4 or (my_count <= 6 and hp.get('recent_enemy_passes', 0) >= 2)
 
         if lt == 'single':
             return self._resp_single(hand, groups, lv, urgent, aggressive, log)
@@ -212,7 +226,10 @@ class AIPlayer:
                 return [cands[0]]
 
             # 正常: 不浪费A和2，除非没别的选择
-            safe = [c for c in cands if rv(c[1]) <= 10]  # <=K
+            hp = getattr(self, 'history_profile', {})
+            high_remaining = hp.get('high_cards_remaining', 8)
+            safe_limit = 10 if high_remaining > 2 else 11  # 高牌快出尽时可放宽到A
+            safe = [c for c in cands if rv(c[1]) <= safe_limit]
             if safe:
                 log.append(f"出孤张{safe[0][1]}(保留大牌)")
                 return [safe[0]]
@@ -554,3 +571,33 @@ class AIPlayer:
             if htype:
                 return cand
         return None
+
+    def _analyze_history(self, history, player_idx):
+        """从历史出牌中提取可用于决策的轻量信息。"""
+        recent = history[-12:]
+        recent_enemy_passes = 0
+        high_cards_seen = 0
+        bombs_seen = 0
+
+        for action in recent:
+            pid = action.get('player')
+            cards = action.get('cards', [])
+            if pid != player_idx and action.get('action') == 'pass':
+                recent_enemy_passes += 1
+
+            if action.get('action') != 'play' or not cards:
+                continue
+
+            if len(cards) == 4 and len({c[1] for c in cards}) == 1:
+                bombs_seen += 1
+
+            for card in cards:
+                if card[1] in ('A', '2'):
+                    high_cards_seen += 1
+
+        return {
+            'recent_enemy_passes': recent_enemy_passes,
+            'high_cards_seen': high_cards_seen,
+            'high_cards_remaining': max(0, 8 - high_cards_seen),
+            'bombs_seen': bombs_seen
+        }

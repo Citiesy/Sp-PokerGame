@@ -244,7 +244,8 @@ class Game:
             is_free=is_free,
             first_turn=self.first_turn,
             other_counts=[len(self.players[i]) for i in range(4)],
-            player_idx=pid
+            player_idx=pid,
+            history=self.history
         )
         if cards:
             self.play_cards(pid, [tuple(c) for c in cards])

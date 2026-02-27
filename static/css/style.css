@@ -444,3 +444,24 @@ body{
     box-shadow:0 8px 20px rgba(0,0,0,.22);
     backdrop-filter: blur(2px);
 }
+
+/* ==== Optional local card image pack ==== */
+.cd.use-img{
+    overflow:hidden;
+    background:#fff;
+}
+.cd-img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    border-radius:inherit;
+    z-index:3;
+}
+.cd.use-img .inner-oval,
+.cd.use-img .rt,
+.cd.use-img .sm,
+.cd.use-img .rb{
+    opacity:0;
+}
