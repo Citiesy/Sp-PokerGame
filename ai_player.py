@@ -62,6 +62,11 @@ class AIPlayer:
             log.append("发现一手出完机会")
             return kill_shot
 
+        kill_shot = self._find_kill_shot(hand)
+        if kill_shot:
+            log.append("发现一手出完机会")
+            return kill_shot
+
         # 手牌<=2张直接全出(如果合法)
         if len(hand) <= 2:
             from game_logic import classify_hand
@@ -566,7 +571,6 @@ class AIPlayer:
             if htype:
                 return cand
         return None
-
 
     def _analyze_history(self, history, player_idx):
         """从历史出牌中提取可用于决策的轻量信息。"""
